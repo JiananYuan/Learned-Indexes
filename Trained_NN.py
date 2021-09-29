@@ -5,6 +5,8 @@ from enum import Enum
 from data.create_data import Distribution
 from functools import wraps
 
+tf.compat.v1.disable_v2_behavior()
+
 DATA_TYPE = Distribution.RANDOM
 
 def set_data_type(data_type):
@@ -44,8 +46,6 @@ class ParameterPool(Enum):
                           batch_sizes=[100, 50], learning_rates=[0.0001, 0.001], keep_ratios=[1.0, 0.9])
     EXPONENTIAL = Parameter(stages=[1, 100], cores=[[1, 8, 1], [1, 8, 1]], train_steps=[30000, 20000],
                             batch_sizes=[50, 50], learning_rates=[0.0001, 0.001], keep_ratios=[0.9, 1.0])
-    # EXPONENTIAL = Parameter(stages=[1, 100], cores=[[1, 16, 16, 1], [1, 8, 1]], train_steps=[20000, 300],
-    #                       batch_sizes=[20, 50], learning_rates=[0.0001, 0.001], keep_ratios=[1.0, 1.0])
     NORMAL = Parameter(stages=[1, 100], cores=[[1, 8, 1], [1, 8, 1]], train_steps=[20000, 300],
                        batch_sizes=[50, 50], learning_rates=[0.0001, 0.001], keep_ratios=[0.9, 1.0])
 
@@ -65,10 +65,12 @@ def weight_variable(shape):
         initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
 
+
 # initialize 
 def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
+
 
 # extract matrix for predicting position
 class AbstractNN:
@@ -84,6 +86,7 @@ class AbstractNN:
         for i in range(1, len(self.core_nums) - 1):
             tmp_res = np.mat(tmp_res) * np.mat(self.weights[i]) + np.mat(self.bias[i])
         return int(round(tmp_res[0][0]))
+
 
 # Netural Network Model
 class TrainedNN:
@@ -103,11 +106,11 @@ class TrainedNN:
         self.train_y = train_y
         self.test_x = np.array([test_x]).T
         self.test_y = np.array([test_y]).T
-        self.sess = tf.Session()
+        self.sess = tf.compat.v1.Session()
         self.batch = 1
         self.batch_x = np.array([self.train_x[0:self.batch_size]]).T
         self.batch_y = np.array([self.train_y[0:self.batch_size]]).T
-        self.y_ = tf.placeholder(tf.float32, shape=[None, self.core_nums[-1]])
+        self.y_ = tf.compat.v1.placeholder(tf.float32, shape=[None, self.core_nums[-1]])
         self.w_fc = []
         self.b_fc = []
         for i in range(len(self.core_nums) - 1):
@@ -115,8 +118,8 @@ class TrainedNN:
             self.b_fc.append(bias_variable([self.core_nums[i + 1]]))
         self.h_fc = [None for i in range(len(self.core_nums))]
         self.h_fc_drop = [None for i in range(len(self.core_nums))]
-        self.h_fc_drop[0] = tf.placeholder(tf.float32, shape=[None, self.core_nums[0]])
-        self.keep_prob = tf.placeholder(tf.float32)        
+        self.h_fc_drop[0] = tf.compat.v1.placeholder(tf.float32, shape=[None, self.core_nums[0]])
+        self.keep_prob = tf.compat.v1.placeholder(tf.float32)
 
     # get next batch of data
     def next_batch(self):

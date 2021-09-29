@@ -45,6 +45,7 @@ toStorePath = {
     Distribution.LOGNORMAL: "data/lognormal_t.csv"
 }
 
+
 # create data
 def create_data(distribution, data_size=SIZE):
     if distribution == Distribution.RANDOM:
@@ -61,7 +62,7 @@ def create_data(distribution, data_size=SIZE):
         data = np.random.normal(1000, 100, size=data_size)
     res_path = filePath[distribution]
     data.sort()
-    with open(res_path, 'wb') as csvFile:
+    with open(res_path, 'w') as csvFile:
         csv_writer = csv.writer(csvFile)
         i = 0
         if distribution == Distribution.EXPONENTIAL:

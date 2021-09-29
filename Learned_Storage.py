@@ -51,6 +51,7 @@ useThresholdPool = {
     Distribution.EXPONENTIAL: [True, False],
 }
 
+
 # binary search for data segment
 def part_binary_search(data_list, pos_list, key):
     start = 0
@@ -69,6 +70,7 @@ def part_binary_search(data_list, pos_list, key):
     else:
         return mid
 
+
 # binary search for position in data segment
 def pos_binary_search(data_list, key):
     start = 0
@@ -86,6 +88,7 @@ def pos_binary_search(data_list, key):
         return mid - 1
     else:
         return mid
+
 
 # function for train index
 def hybrid_training(threshold, use_threshold, stage_nums, core_nums, train_step_nums, batch_size_nums,
@@ -139,6 +142,7 @@ def hybrid_training(threshold, use_threshold, stage_nums, core_nums, train_step_
             index[stage_length - 1][i].build(tmp_inputs[stage_length - 1][i], tmp_labels[stage_length - 1][i])
     return index
 
+
 # calculate data distribution
 def learn_density(threshold, use_threshold, distribution, train_set_x, train_set_y, test_set_x, test_set_y):
     set_data_type(distribution)
@@ -173,6 +177,7 @@ def learn_density(threshold, use_threshold, distribution, train_set_x, train_set
     print("*************end Learned NN************")
 
     return trained_index
+
 
 # main function for storage optimization
 def optimize_storage(do_compare, do_record, threshold, use_threshold, data_part_distance, learning_percent, distribution):
@@ -347,6 +352,7 @@ def optimize_storage(do_compare, do_record, threshold, use_threshold, data_part_
                   + str(learning_percent) + ".json", "wb") as jsonFile:
             json.dump(result, jsonFile)
 
+
 # help message
 def show_help_message(msg):
     help_message = {
@@ -369,6 +375,7 @@ def show_help_message(msg):
     else:
         print(help_message['command'])
         print('Error! ' + help_message[msg])
+
 
 # command line
 def main(argv):
