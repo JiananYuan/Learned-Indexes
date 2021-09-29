@@ -6,7 +6,6 @@ from data.create_data import Distribution
 from functools import wraps
 
 tf.compat.v1.disable_v2_behavior()
-
 DATA_TYPE = Distribution.RANDOM
 
 def set_data_type(data_type):
@@ -85,7 +84,7 @@ class AbstractNN:
         tmp_res = np.mat(input_key) * np.mat(self.weights[0]) + np.mat(self.bias[0])
         for i in range(1, len(self.core_nums) - 1):
             tmp_res = np.mat(tmp_res) * np.mat(self.weights[i]) + np.mat(self.bias[i])
-        return int(round(tmp_res[0][0]))
+        return int(np.round(tmp_res[0][0]))
 
 
 # Netural Network Model
@@ -139,8 +138,8 @@ class TrainedNN:
             self.h_fc_drop[i + 1] = tf.nn.dropout(self.h_fc[i], self.keep_prob)
 
         self.cross_entropy = tf.reduce_mean(tf.losses.mean_squared_error(self.y_, self.h_fc[len(self.core_nums) - 2]))
-        self.train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(self.cross_entropy)
-        self.sess.run(tf.global_variables_initializer())
+        self.train_step = tf.compat.v1.train.AdamOptimizer(self.learning_rate).minimize(self.cross_entropy)
+        self.sess.run(tf.compat.v1.global_variables_initializer())
         
         last_err = 0
         err_count = 0

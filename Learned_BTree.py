@@ -7,6 +7,7 @@ from btree import BTree
 from data.create_data import create_data, Distribution
 import time, gc, json
 import os, sys, getopt
+import numpy as np
 
 # Setting 
 BLOCK_SIZE = 100
@@ -44,6 +45,18 @@ useThresholdPool = {
     Distribution.RANDOM: [True, False],
     Distribution.EXPONENTIAL: [True, False],
 }
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(NpEncoder, self).default(obj)
 
 
 # hybrid training structure, 2 stages
@@ -194,7 +207,7 @@ def train_index(threshold, use_threshold, distribution, path):
                                   "bias": trained_index[1][ind].weights}
     result = [{"stage": 1, "parameters": result_stage1}, {"stage": 2, "parameters": result_stage2}]
 
-    with open("model/" + pathString[distribution] + "/full_train/NN/" + str(TOTAL_NUMBER) + ".json", "wb") as jsonFile:
+    with open("model/" + pathString[distribution] + "/full_train/NN/" + str(TOTAL_NUMBER) + ".json", "w") as jsonFile:
         json.dump(result, jsonFile)
 
     # wirte performance into files
@@ -202,7 +215,7 @@ def train_index(threshold, use_threshold, distribution, path):
                       "store size": os.path.getsize(
                           "model/" + pathString[distribution] + "/full_train/NN/" + str(TOTAL_NUMBER) + ".json")}
     with open("performance/" + pathString[distribution] + "/full_train/NN/" + str(TOTAL_NUMBER) + ".json",
-              "wb") as jsonFile:
+              "w") as jsonFile:
         json.dump(performance_NN, jsonFile)
 
     del trained_index
@@ -251,8 +264,8 @@ def train_index(threshold, use_threshold, distribution, path):
         result.append(tmp)
 
     with open("model/" + pathString[distribution] + "/full_train/BTree/" + str(TOTAL_NUMBER) + ".json",
-              "wb") as jsonFile:
-        json.dump(result, jsonFile)
+              "w") as jsonFile:
+        json.dump(result, jsonFile, cls=NpEncoder)
 
     # write performance into files
     performance_BTree = {"type": "BTree", "build time": build_time, "search time": search_time,
@@ -260,7 +273,7 @@ def train_index(threshold, use_threshold, distribution, path):
                          "store size": os.path.getsize(
                              "model/" + pathString[distribution] + "/full_train/BTree/" + str(TOTAL_NUMBER) + ".json")}
     with open("performance/" + pathString[distribution] + "/full_train/BTree/" + str(TOTAL_NUMBER) + ".json",
-              "wb") as jsonFile:
+              "w") as jsonFile:
         json.dump(performance_BTree, jsonFile)
 
     del bt
@@ -360,14 +373,14 @@ def sample_train(threshold, use_threshold, distribution, training_percent, path)
     result = [{"stage": 1, "parameters": result_stage1}, {"stage": 2, "parameters": result_stage2}]
 
     with open("model/" + pathString[distribution] + "/sample_train/NN/" + str(training_percent) + ".json",
-              "wb") as jsonFile:
+              "w") as jsonFile:
         json.dump(result, jsonFile)
 
     performance_NN = {"type": "NN", "build time": learn_time, "search time": search_time, "average error": mean_error,
                       "store size": os.path.getsize(
                           "model/" + pathString[distribution] + "/sample_train/NN/" + str(training_percent) + ".json")}
     with open("performance/" + pathString[distribution] + "/sample_train/NN/" + str(training_percent) + ".json",
-              "wb") as jsonFile:
+              "w") as jsonFile:
         json.dump(performance_NN, jsonFile)
 
     del trained_index
