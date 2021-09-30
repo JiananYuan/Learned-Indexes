@@ -37,6 +37,7 @@ class Parameter:
         self.learning_rate_set = learning_rates
         self.keep_ratio_set = keep_ratios
 
+
 # parameter pool
 class ParameterPool(Enum):
     RANDOM = Parameter(stages=[1, 10], cores=[[1, 1], [1, 1]], train_steps=[20000, 20000],
@@ -47,6 +48,7 @@ class ParameterPool(Enum):
                             batch_sizes=[50, 50], learning_rates=[0.0001, 0.001], keep_ratios=[0.9, 1.0])
     NORMAL = Parameter(stages=[1, 100], cores=[[1, 8, 1], [1, 8, 1]], train_steps=[20000, 300],
                        batch_sizes=[50, 50], learning_rates=[0.0001, 0.001], keep_ratios=[0.9, 1.0])
+
 
 # initialize weight marrix
 def weight_variable(shape):

@@ -1,13 +1,17 @@
 # Main File for Learned Index
 
 from __future__ import print_function
+import gc
+import getopt
+import json
+import os
+import sys
+import time
+import numpy as np
 import pandas as pd
 from Trained_NN import TrainedNN, AbstractNN, ParameterPool, set_data_type
 from btree import BTree
 from data.create_data import create_data, Distribution
-import time, gc, json
-import os, sys, getopt
-import numpy as np
 
 # Setting 
 BLOCK_SIZE = 100
@@ -38,7 +42,7 @@ pathString = {
 thresholdPool = {
     Distribution.RANDOM: [1, 4],
     Distribution.EXPONENTIAL: [55, 10000]
-}   
+}
 
 # whether use threshold to stop train for models in stages
 useThresholdPool = {
@@ -87,12 +91,12 @@ def hybrid_training(threshold, use_threshold, stage_nums, core_nums, train_step_
                     test_labels.append(int(k * divisor))
             else:
                 labels = tmp_labels[i][j]
-                test_labels = test_data_y    
-            # train model                    
+                test_labels = test_data_y
+            # train model
             tmp_index = TrainedNN(threshold[i], use_threshold[i], core_nums[i], train_step_nums[i], batch_size_nums[i],
                                     learning_rate_nums[i],
-                                    keep_ratio_nums[i], inputs, labels, test_inputs, test_labels)            
-            tmp_index.train()      
+                                    keep_ratio_nums[i], inputs, labels, test_inputs, test_labels)
+            tmp_index.train()
             # get parameters in model (weight matrix and bias matrix)
             index[i][j] = AbstractNN(tmp_index.get_weights(), tmp_index.get_bias(), core_nums[i], tmp_index.cal_err())
             del tmp_index
@@ -121,8 +125,6 @@ def hybrid_training(threshold, use_threshold, stage_nums, core_nums, train_step_
 
 # main function for training index
 def train_index(threshold, use_threshold, distribution, path):
-    # data = pd.read_csv("data/random_t.csv", header=None)
-    # data = pd.read_csv("data/exponential_t.csv", header=None)
     data = pd.read_csv(path, header=None)
     train_set_x = []
     train_set_y = []
@@ -154,6 +156,7 @@ def train_index(threshold, use_threshold, distribution, path):
         train_set_x.append(data.iloc[i, 0])
         train_set_y.append(data.iloc[i, 1])
 
+    # 直接把train 拷贝给test
     test_set_x = train_set_x[:]
     test_set_y = train_set_y[:]
 
@@ -314,18 +317,18 @@ def sample_train(threshold, use_threshold, distribution, training_percent, path)
     # pick data for training according to training percent
     if training_percent != 0.8:
         for i in range(TOTAL_NUMBER):
-            test_set_x.append(data.ix[i, 0])
-            test_set_y.append(data.ix[i, 1])
+            test_set_x.append(data.iloc[i, 0])
+            test_set_y.append(data.iloc[i, 1])
             if i % interval == 0:
-                train_set_x.append(data.ix[i, 0])
-                train_set_y.append(data.ix[i, 1])
+                train_set_x.append(data.iloc[i, 0])
+                train_set_y.append(data.iloc[i, 1])
     else:
         for i in range(TOTAL_NUMBER):
-            test_set_x.append(data.ix[i, 0])
-            test_set_y.append(data.ix[i, 1])
+            test_set_x.append(data.iloc[i, 0])
+            test_set_y.append(data.iloc[i, 1])
             if i % 5 != 0:
-                train_set_x.append(data.ix[i, 0])
-                train_set_y.append(data.ix[i, 1])
+                train_set_x.append(data.iloc[i, 0])
+                train_set_y.append(data.iloc[i, 1])
 
     print("*************start Learned NN************")
     print("Start Train")
@@ -407,6 +410,7 @@ def show_help_message(msg):
     else:
         print(help_message['command'])
         print('Error! ' + help_message[msg])
+
 
 # command line
 def main(argv):
